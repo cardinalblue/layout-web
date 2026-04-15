@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens — populated by /shape → /impeccable teach
+ * Replace these placeholder values with your design system tokens.
+ */
+
+:root {
+  /* Colors: define after running /shape */
+  --color-background: #ffffff;
+  --color-foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #0a0a0a;
+    --color-foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: system-ui, sans-serif;
+}

@@ -1,0 +1,47 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
+.env
+.env.*
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# AI tools
+.claude/
+.agents/
+.commandcode/
+.cline/
+.cursor/
+.aider/
+
+# E2E
+e2e/screenshots/
+
+# Local uploads
+public/uploads/
