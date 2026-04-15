@@ -204,7 +204,7 @@ export default function UploadSection() {
 
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:gap-6">
             {/* Parameters — canvas ratio + bg + sliders all inside the card */}
-            <div className="order-2 w-full shrink-0 lg:order-1 lg:w-[340px]">
+            <div className="order-2 w-full shrink-0 lg:order-1 lg:w-[380px]">
               <ParameterPanel
                 mode={mode}
                 params={params}

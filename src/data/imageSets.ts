@@ -59,24 +59,20 @@ export const PLACEHOLDER_COLORS = [
   '#A8E87C', // lime
 ];
 
-// Canvas background colors — mid-tone, low-saturation, won't compete with photos
-// HSL lightness 25–55%, saturation 8–25%, full hue range
+// Canvas background colors — 8 hues evenly spaced (~50°), low-saturation, mid-brightness
+// HSL S:12–18%, L:28–48%
 export const CANVAS_BG_COLORS = [
-  { label: 'Charcoal',   value: '#2E2E30' }, // neutral dark
-  { label: 'Espresso',   value: '#3D3229' }, // warm dark brown
-  { label: 'Slate',      value: '#4A5059' }, // cool blue-gray
-  { label: 'Denim',      value: '#4E5B6A' }, // muted blue
-  { label: 'Olive',      value: '#5C5E48' }, // earthy green
-  { label: 'Mushroom',   value: '#7A7168' }, // warm neutral mid
-  { label: 'Clay',       value: '#8B7464' }, // terracotta mid
-  { label: 'Sage',       value: '#6E7D68' }, // muted green
-  { label: 'Storm',      value: '#6B7580' }, // steel blue
-  { label: 'Mauve',      value: '#7D6E78' }, // dusty purple
-  { label: 'Blush',      value: '#8E7575' }, // muted rose
-  { label: 'Sand',       value: '#8F8474' }, // warm beige mid
+  { label: 'Charcoal', value: '#474747' }, // neutral
+  { label: 'Blush',    value: '#8C6C69' }, // warm rose     H:5
+  { label: 'Clay',     value: '#8A7260' }, // terracotta    H:25
+  { label: 'Olive',    value: '#797E63' }, // earthy green  H:70
+  { label: 'Sage',     value: '#67836C' }, // muted green   H:130
+  { label: 'Teal',     value: '#60807D' }, // muted teal    H:175
+  { label: 'Storm',    value: '#637288' }, // steel blue    H:215
+  { label: 'Mauve',    value: '#7F6783' }, // dusty purple  H:290
 ];
 
-export const DEFAULT_CANVAS_BG = '#2E2E30';
+export const DEFAULT_CANVAS_BG = '#474747';
 
 export function generateImages(
   setKey: string,
