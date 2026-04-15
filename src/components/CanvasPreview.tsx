@@ -9,6 +9,7 @@ interface CanvasPreviewProps {
   canvasH: number;
   mode: LayoutMode;
   images?: { id: string; src: string }[];
+  bgColor?: string;
 }
 
 export default function CanvasPreview({
@@ -17,6 +18,7 @@ export default function CanvasPreview({
   canvasH,
   mode,
   images,
+  bgColor,
 }: CanvasPreviewProps) {
   const imageMap = new Map(images?.map((img) => [img.id, img.src]));
   const aspectRatio = canvasW / canvasH;
@@ -27,7 +29,7 @@ export default function CanvasPreview({
       style={{
         maxWidth: '640px',
         aspectRatio: `${aspectRatio}`,
-        background: 'var(--canvas-bg)',
+        background: bgColor ?? 'var(--canvas-bg)',
         borderRadius: 'var(--radius-lg)',
         boxShadow: 'var(--shadow-canvas)',
       }}
