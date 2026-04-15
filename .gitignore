@@ -45,3 +45,4 @@ e2e/screenshots/
 
 # Local uploads
 public/uploads/
+.gstack/

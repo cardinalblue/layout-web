@@ -1,17 +1,41 @@
 import type { Metadata } from 'next';
+import { Newsreader, Outfit, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-export const metadata: Metadata = {
-  title: 'layout_web',
-  description: 'Two layout algorithms (Grid/Phyllo) for arranging images on a canvas with a playground and photo upload',
-};
+const newsreader = Newsreader({
+  subsets: ['latin'],
+  style: ['italic'],
+  weight: ['400'],
+  variable: '--font-newsreader',
+  display: 'swap',
+});
 
-// TODO: Replace fonts after running /shape → /impeccable teach
-// Example: import { Figtree } from 'next/font/google';
+const outfit = Outfit({
+  subsets: ['latin'],
+  weight: ['400', '600'],
+  variable: '--font-outfit',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-jetbrains',
+  display: 'swap',
+});
+
+export const metadata: Metadata = {
+  title: 'Auto Layout Engine — Grid + Phyllo',
+  description:
+    'Two image layout algorithms: Grid (gallery-wall aligned rows) and Phyllo (organic freestyle via phyllotaxis spiral). Interactive playground with photo upload.',
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-Hant">
+    <html
+      lang="en"
+      className={`${newsreader.variable} ${outfit.variable} ${jetbrainsMono.variable}`}
+    >
       <body>{children}</body>
     </html>
   );
