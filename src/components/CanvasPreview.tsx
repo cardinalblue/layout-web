@@ -18,6 +18,21 @@ function colorForId(id: string): string {
   return PLACEHOLDER_COLORS[idx % PLACEHOLDER_COLORS.length];
 }
 
+// Compute display dimensions that fit within max bounds while preserving aspect ratio
+const MAX_DISPLAY_W = 640;
+const MAX_DISPLAY_H = 480;
+
+function computeDisplaySize(canvasW: number, canvasH: number) {
+  const ar = canvasW / canvasH;
+  let w = MAX_DISPLAY_W;
+  let h = w / ar;
+  if (h > MAX_DISPLAY_H) {
+    h = MAX_DISPLAY_H;
+    w = h * ar;
+  }
+  return { w, h };
+}
+
 export default function CanvasPreview({
   frames,
   canvasW,
@@ -27,33 +42,20 @@ export default function CanvasPreview({
   bgColor,
 }: CanvasPreviewProps) {
   const imageMap = new Map(images?.map((img) => [img.id, img.src]));
-  const aspectRatio = canvasW / canvasH;
-  const isPortrait = aspectRatio < 1;
-
+  const { w: displayW } = computeDisplaySize(canvasW, canvasH);
   const sortedFrames = [...frames].sort((a, b) => a.id.localeCompare(b.id));
 
   return (
     <div
-      className="mx-auto flex items-center justify-center"
-      style={{
-        // Container: max 640px wide, max 500px tall (65vh on mobile)
-        // Portrait canvases fit inside this box instead of overflowing
-        maxWidth: isPortrait ? undefined : '640px',
-        maxHeight: 'min(500px, 65vh)',
-        width: '100%',
-        aspectRatio: isPortrait ? undefined : undefined,
-      }}
+      className="mx-auto w-full"
+      style={{ maxWidth: `${displayW}px` }}
     >
       <div
-        className="relative overflow-hidden"
+        className="relative w-full overflow-hidden"
         style={{
-          // Canvas sizes itself to fit within the container
-          // Landscape: full width, height from aspect ratio
-          // Portrait: full height of container, width from aspect ratio
-          width: isPortrait ? 'auto' : '100%',
-          height: isPortrait ? 'min(500px, 65vh)' : undefined,
+          // aspect-ratio + width:100% gives correct height
+          // maxWidth on parent constrains the width, so this never overflows
           aspectRatio: `${canvasW} / ${canvasH}`,
-          maxWidth: isPortrait ? '100%' : '640px',
           background: bgColor ?? 'var(--canvas-bg)',
           borderRadius: 'var(--radius-lg)',
           boxShadow: 'var(--shadow-canvas)',
