@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback, useRef } from 'react';
 import type { LayoutMode, Frame } from '../engine/types';
 import { gridLayout } from '../engine/grid';
 import { phylloLayout } from '../engine/phyllo';
-import { generateImages, CANVAS_RATIOS, CANVAS_BG_COLORS, DEFAULT_CANVAS_BG } from '../data/imageSets';
+import { generateImages, CANVAS_RATIOS, DEFAULT_CANVAS_BG } from '../data/imageSets';
 import ModeSwitch from './ModeSwitch';
 import ParameterPanel, { type LayoutParams } from './ParameterPanel';
 import CanvasPreview from './CanvasPreview';
@@ -107,47 +107,27 @@ export default function Playground() {
         Playground
       </h2>
 
-      {/* Mode switch + bg color */}
-      <div className="mb-5 flex flex-wrap items-center gap-4">
+      {/* Mode switch */}
+      <div className="mb-5">
         <ModeSwitch mode={mode} onModeChange={setMode} />
-        <div className="flex items-center gap-1.5">
-          {CANVAS_BG_COLORS.map((c) => (
-            <button
-              key={c.value}
-              onClick={() => setBgColor(c.value)}
-              className="h-5 w-5 cursor-pointer rounded-full transition-all"
-              style={{
-                background: c.value,
-                border: bgColor === c.value
-                  ? `2px solid ${mode === 'grid' ? 'var(--accent-grid)' : 'var(--accent-phyllo)'}`
-                  : '1.5px solid var(--border-surface)',
-                transform: bgColor === c.value ? 'scale(1.2)' : 'scale(1)',
-                transitionDuration: 'var(--duration-fast)',
-              }}
-              aria-label={`Background: ${c.label}`}
-              title={c.label}
-            />
-          ))}
-        </div>
       </div>
 
       {/* Desktop: side-by-side | Mobile: canvas on top, params below */}
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:gap-6">
 
-        {/* === LEFT: Parameters (desktop) / Below canvas (mobile) === */}
-        {/* On mobile, order-2 pushes params below canvas */}
+        {/* Parameters — includes canvas ratio + bg color */}
         <div className="order-2 w-full shrink-0 lg:order-1 lg:w-[340px]">
           <ParameterPanel
             mode={mode}
             params={params}
             onParamsChange={handleParamsChange}
+            bgColor={bgColor}
+            onBgColorChange={setBgColor}
           />
         </div>
 
-        {/* === RIGHT: Canvas + Stats + Controls === */}
-        {/* On mobile, order-1 so canvas comes first; sticky so it stays visible */}
+        {/* Canvas + Stats + Controls */}
         <div className="order-1 flex min-w-0 flex-1 flex-col gap-4 lg:order-2">
-          {/* Sticky canvas on mobile */}
           <div className="sticky top-0 z-10 -mx-4 px-4 pb-2 pt-2 lg:static lg:mx-0 lg:px-0 lg:pb-0 lg:pt-0"
             style={{ background: 'var(--bg)' }}
           >
@@ -160,7 +140,6 @@ export default function Playground() {
             />
           </div>
 
-          {/* Stats */}
           <StatsBar
             frames={frames}
             canvasW={canvasW}
@@ -168,7 +147,6 @@ export default function Playground() {
             score={score}
           />
 
-          {/* Seed + Shuffle */}
           <div className="flex flex-wrap items-center justify-center gap-4">
             <SeedControls seed={seed} mode={mode} onSeedChange={setSeed} />
             <ShuffleButton mode={mode} onShuffle={handleShuffle} />

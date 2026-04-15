@@ -2,7 +2,7 @@
 
 import type { LayoutMode } from '../engine/types';
 import SliderRow from './SliderRow';
-import { IMAGE_SETS, CANVAS_RATIOS } from '../data/imageSets';
+import { IMAGE_SETS, CANVAS_RATIOS, CANVAS_BG_COLORS } from '../data/imageSets';
 
 export interface LayoutParams {
   imageCount: number;
@@ -22,6 +22,12 @@ interface ParameterPanelProps {
   params: LayoutParams;
   onParamsChange: (params: LayoutParams) => void;
   compact?: boolean;
+  // Canvas ratio (managed externally for Upload section)
+  canvasRatio?: string;
+  onCanvasRatioChange?: (ratio: string) => void;
+  // Background color
+  bgColor: string;
+  onBgColorChange: (color: string) => void;
 }
 
 export default function ParameterPanel({
@@ -29,12 +35,24 @@ export default function ParameterPanel({
   params,
   onParamsChange,
   compact,
+  canvasRatio: externalCanvasRatio,
+  onCanvasRatioChange,
+  bgColor,
+  onBgColorChange,
 }: ParameterPanelProps) {
   const update = (patch: Partial<LayoutParams>) => {
     onParamsChange({ ...params, ...patch });
   };
 
   const accentClass = mode === 'phyllo' ? 'slider-phyllo' : '';
+  const accentColor = mode === 'grid' ? 'var(--accent-grid)' : 'var(--accent-phyllo)';
+
+  // Use external canvas ratio if provided (Upload), else use params (Playground)
+  const activeCanvasRatio = externalCanvasRatio ?? params.canvasRatio;
+  const handleCanvasRatioChange = (key: string) => {
+    if (onCanvasRatioChange) onCanvasRatioChange(key);
+    else update({ canvasRatio: key });
+  };
 
   return (
     <div
@@ -45,38 +63,61 @@ export default function ParameterPanel({
         boxShadow: 'var(--shadow-card)',
       }}
     >
-      {/* Canvas group — pills + image count */}
+      {/* Canvas ratio — always shown */}
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span
+          className="font-heading mr-0.5 text-[10px] tracking-wider uppercase"
+          style={{ color: 'var(--text-tertiary)' }}
+        >
+          Canvas ratio
+        </span>
+        {Object.entries(CANVAS_RATIOS).map(([key, def]) => (
+          <button
+            key={key}
+            onClick={() => handleCanvasRatioChange(key)}
+            className="font-mono cursor-pointer rounded-full px-2.5 py-1 text-[11px] transition-all"
+            style={{
+              background: activeCanvasRatio === key ? accentColor : 'transparent',
+              color: activeCanvasRatio === key ? '#fff' : 'var(--text-secondary)',
+              border: activeCanvasRatio === key ? 'none' : '1px solid var(--border-surface)',
+              transitionDuration: 'var(--duration-fast)',
+            }}
+          >
+            {def.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Background color — always shown */}
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span
+          className="font-heading mr-0.5 text-[10px] tracking-wider uppercase"
+          style={{ color: 'var(--text-tertiary)' }}
+        >
+          Background
+        </span>
+        {CANVAS_BG_COLORS.map((c) => (
+          <button
+            key={c.value}
+            onClick={() => onBgColorChange(c.value)}
+            className="h-5 w-5 cursor-pointer rounded-full transition-all"
+            style={{
+              background: c.value,
+              border: bgColor === c.value
+                ? `2px solid ${accentColor}`
+                : '1.5px solid var(--border-surface)',
+              transform: bgColor === c.value ? 'scale(1.15)' : 'scale(1)',
+              transitionDuration: 'var(--duration-fast)',
+            }}
+            aria-label={`Background: ${c.label}`}
+            title={c.label}
+          />
+        ))}
+      </div>
+
+      {/* Image set + count — playground only */}
       {!compact && (
         <div className="flex flex-col gap-2.5">
-          {/* Canvas ratio */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span
-              className="font-heading mr-0.5 text-[10px] tracking-wider uppercase"
-              style={{ color: 'var(--text-tertiary)' }}
-            >
-              Canvas ratio
-            </span>
-            {Object.entries(CANVAS_RATIOS).map(([key, def]) => (
-              <button
-                key={key}
-                onClick={() => update({ canvasRatio: key })}
-                className="font-mono cursor-pointer rounded-full px-2.5 py-1 text-[11px] transition-all"
-                style={{
-                  background:
-                    params.canvasRatio === key
-                      ? mode === 'grid' ? 'var(--accent-grid)' : 'var(--accent-phyllo)'
-                      : 'transparent',
-                  color: params.canvasRatio === key ? '#fff' : 'var(--text-secondary)',
-                  border: params.canvasRatio === key ? 'none' : '1px solid var(--border-surface)',
-                  transitionDuration: 'var(--duration-fast)',
-                }}
-              >
-                {def.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Image set */}
           <div className="flex flex-wrap items-center gap-1.5">
             <span
               className="font-heading mr-0.5 text-[10px] tracking-wider uppercase"
@@ -90,10 +131,7 @@ export default function ParameterPanel({
                 onClick={() => update({ imageSet: key })}
                 className="font-heading cursor-pointer rounded-full px-2.5 py-1 text-[11px] transition-all"
                 style={{
-                  background:
-                    params.imageSet === key
-                      ? mode === 'grid' ? 'var(--accent-grid)' : 'var(--accent-phyllo)'
-                      : 'transparent',
+                  background: params.imageSet === key ? accentColor : 'transparent',
                   color: params.imageSet === key ? '#fff' : 'var(--text-secondary)',
                   border: params.imageSet === key ? 'none' : '1px solid var(--border-surface)',
                   transitionDuration: 'var(--duration-fast)',
@@ -115,7 +153,7 @@ export default function ParameterPanel({
         </div>
       )}
 
-      {/* Layout sliders — always compact inline rows */}
+      {/* Layout sliders */}
       <SliderRow
         label="Gap"
         value={params.gapPercent}

@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback, useRef } from 'react';
 import type { LayoutMode, Frame } from '../engine/types';
 import { gridLayout } from '../engine/grid';
 import { phylloLayout } from '../engine/phyllo';
-import { CANVAS_RATIOS, CANVAS_BG_COLORS, DEFAULT_CANVAS_BG } from '../data/imageSets';
+import { CANVAS_RATIOS, DEFAULT_CANVAS_BG } from '../data/imageSets';
 import ModeSwitch from './ModeSwitch';
 import ParameterPanel, { type LayoutParams } from './ParameterPanel';
 import CanvasPreview from './CanvasPreview';
@@ -15,12 +15,12 @@ import ThumbnailRow from './ThumbnailRow';
 
 interface UploadedPhoto {
   id: string;
-  src: string;       // objectURL from resized blob
+  src: string;
   aspectRatio: number;
   filename: string;
 }
 
-const MAX_IMAGE_SIZE = 1200; // max px on longest side
+const MAX_IMAGE_SIZE = 1200;
 const JPEG_QUALITY = 0.85;
 
 const DEFAULT_PARAMS: LayoutParams = {
@@ -36,8 +36,6 @@ const DEFAULT_PARAMS: LayoutParams = {
   maxTrials: 10,
 };
 
-// Uses shared CANVAS_BG_COLORS from imageSets
-
 const CANVAS_SIZE = 800;
 
 function resizeImage(file: File): Promise<{ blob: Blob; width: number; height: number }> {
@@ -47,20 +45,16 @@ function resizeImage(file: File): Promise<{ blob: Blob; width: number; height: n
     img.onload = () => {
       URL.revokeObjectURL(url);
       let { naturalWidth: w, naturalHeight: h } = img;
-
-      // Downscale if larger than MAX_IMAGE_SIZE
       if (w > MAX_IMAGE_SIZE || h > MAX_IMAGE_SIZE) {
         const scale = MAX_IMAGE_SIZE / Math.max(w, h);
         w = Math.round(w * scale);
         h = Math.round(h * scale);
       }
-
       const canvas = document.createElement('canvas');
       canvas.width = w;
       canvas.height = h;
       const ctx = canvas.getContext('2d')!;
       ctx.drawImage(img, 0, 0, w, h);
-
       canvas.toBlob(
         (blob) => {
           if (blob) resolve({ blob, width: w, height: h });
@@ -109,7 +103,7 @@ export default function UploadSection() {
         };
         setPhotos((prev) => [...prev, photo]);
       } catch {
-        // Skip failed images silently
+        // Skip failed images
       }
     }
   }, []);
@@ -129,7 +123,6 @@ export default function UploadSection() {
     });
   }, []);
 
-  // Canvas dimensions
   const canvasRatioDef = CANVAS_RATIOS[canvasRatio] ?? CANVAS_RATIOS['4:3'];
   const ratio = canvasRatioDef.width / canvasRatioDef.height;
   const canvasW = ratio >= 1 ? CANVAS_SIZE : CANVAS_SIZE * ratio;
@@ -171,8 +164,6 @@ export default function UploadSection() {
     ? photos.length === 0 ? null : `Add ${3 - photos.length} more for best results`
     : null;
 
-  const accentColor = mode === 'grid' ? 'var(--accent-grid)' : 'var(--accent-phyllo)';
-
   return (
     <section
       className="mx-auto w-full px-4 sm:px-6 lg:px-8"
@@ -206,59 +197,23 @@ export default function UploadSection() {
 
       {photos.length > 0 && (
         <div className="mt-6">
-          {/* Top controls: Mode + Canvas ratio + BG color */}
-          <div className="mb-5 flex flex-wrap items-center gap-3">
+          {/* Mode switch only */}
+          <div className="mb-5">
             <ModeSwitch mode={mode} onModeChange={setMode} />
-
-            {/* Canvas ratio pills */}
-            <div className="flex items-center gap-1.5">
-              {Object.entries(CANVAS_RATIOS).map(([key, def]) => (
-                <button
-                  key={key}
-                  onClick={() => setCanvasRatio(key)}
-                  className="font-mono cursor-pointer rounded-full px-2.5 py-1 text-[11px] transition-all"
-                  style={{
-                    background: canvasRatio === key ? accentColor : 'transparent',
-                    color: canvasRatio === key ? '#fff' : 'var(--text-secondary)',
-                    border: canvasRatio === key ? 'none' : '1px solid var(--border-surface)',
-                    transitionDuration: 'var(--duration-fast)',
-                  }}
-                >
-                  {def.label}
-                </button>
-              ))}
-            </div>
-
-            {/* BG color swatches */}
-            <div className="flex items-center gap-1.5">
-              {CANVAS_BG_COLORS.map((c) => (
-                <button
-                  key={c.value}
-                  onClick={() => setBgColor(c.value)}
-                  className="h-6 w-6 cursor-pointer rounded-full transition-all"
-                  style={{
-                    background: c.value,
-                    border: bgColor === c.value
-                      ? `2px solid ${accentColor}`
-                      : '1.5px solid var(--border-surface)',
-                    transform: bgColor === c.value ? 'scale(1.15)' : 'scale(1)',
-                    transitionDuration: 'var(--duration-fast)',
-                  }}
-                  aria-label={`Background: ${c.label}`}
-                  title={c.label}
-                />
-              ))}
-            </div>
           </div>
 
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:gap-6">
-            {/* Parameters */}
+            {/* Parameters — canvas ratio + bg + sliders all inside the card */}
             <div className="order-2 w-full shrink-0 lg:order-1 lg:w-[340px]">
               <ParameterPanel
                 mode={mode}
                 params={params}
                 onParamsChange={handleParamsChange}
                 compact
+                canvasRatio={canvasRatio}
+                onCanvasRatioChange={setCanvasRatio}
+                bgColor={bgColor}
+                onBgColorChange={setBgColor}
               />
             </div>
 
