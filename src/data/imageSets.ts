@@ -59,6 +59,25 @@ export const PLACEHOLDER_COLORS = [
   '#A8E87C', // lime
 ];
 
+// Canvas background colors — mid-tone, low-saturation, won't compete with photos
+// HSL lightness 25–55%, saturation 8–25%, full hue range
+export const CANVAS_BG_COLORS = [
+  { label: 'Charcoal',   value: '#2E2E30' }, // neutral dark
+  { label: 'Espresso',   value: '#3D3229' }, // warm dark brown
+  { label: 'Slate',      value: '#4A5059' }, // cool blue-gray
+  { label: 'Denim',      value: '#4E5B6A' }, // muted blue
+  { label: 'Olive',      value: '#5C5E48' }, // earthy green
+  { label: 'Mushroom',   value: '#7A7168' }, // warm neutral mid
+  { label: 'Clay',       value: '#8B7464' }, // terracotta mid
+  { label: 'Sage',       value: '#6E7D68' }, // muted green
+  { label: 'Storm',      value: '#6B7580' }, // steel blue
+  { label: 'Mauve',      value: '#7D6E78' }, // dusty purple
+  { label: 'Blush',      value: '#8E7575' }, // muted rose
+  { label: 'Sand',       value: '#8F8474' }, // warm beige mid
+];
+
+export const DEFAULT_CANVAS_BG = '#2E2E30';
+
 export function generateImages(
   setKey: string,
   count: number,

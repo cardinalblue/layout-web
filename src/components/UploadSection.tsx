@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback, useRef } from 'react';
 import type { LayoutMode, Frame } from '../engine/types';
 import { gridLayout } from '../engine/grid';
 import { phylloLayout } from '../engine/phyllo';
-import { CANVAS_RATIOS } from '../data/imageSets';
+import { CANVAS_RATIOS, CANVAS_BG_COLORS, DEFAULT_CANVAS_BG } from '../data/imageSets';
 import ModeSwitch from './ModeSwitch';
 import ParameterPanel, { type LayoutParams } from './ParameterPanel';
 import CanvasPreview from './CanvasPreview';
@@ -36,14 +36,7 @@ const DEFAULT_PARAMS: LayoutParams = {
   maxTrials: 10,
 };
 
-const BG_COLORS = [
-  { label: 'Dark', value: '#0C0C10' },
-  { label: 'White', value: '#FFFFFF' },
-  { label: 'Warm', value: '#F5F0E8' },
-  { label: 'Black', value: '#000000' },
-  { label: 'Navy', value: '#1B2838' },
-  { label: 'Forest', value: '#1A2E1A' },
-];
+// Uses shared CANVAS_BG_COLORS from imageSets
 
 const CANVAS_SIZE = 800;
 
@@ -90,7 +83,7 @@ export default function UploadSection() {
   const [mode, setMode] = useState<LayoutMode>('grid');
   const [seed, setSeed] = useState(100);
   const [params, setParams] = useState<LayoutParams>(DEFAULT_PARAMS);
-  const [bgColor, setBgColor] = useState('#0C0C10');
+  const [bgColor, setBgColor] = useState(DEFAULT_CANVAS_BG);
   const [canvasRatio, setCanvasRatio] = useState('4:3');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [debouncedParams, setDebouncedParams] = useState<LayoutParams>(DEFAULT_PARAMS);
@@ -238,7 +231,7 @@ export default function UploadSection() {
 
             {/* BG color swatches */}
             <div className="flex items-center gap-1.5">
-              {BG_COLORS.map((c) => (
+              {CANVAS_BG_COLORS.map((c) => (
                 <button
                   key={c.value}
                   onClick={() => setBgColor(c.value)}

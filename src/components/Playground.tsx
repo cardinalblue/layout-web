@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback, useRef } from 'react';
 import type { LayoutMode, Frame } from '../engine/types';
 import { gridLayout } from '../engine/grid';
 import { phylloLayout } from '../engine/phyllo';
-import { generateImages, CANVAS_RATIOS } from '../data/imageSets';
+import { generateImages, CANVAS_RATIOS, CANVAS_BG_COLORS, DEFAULT_CANVAS_BG } from '../data/imageSets';
 import ModeSwitch from './ModeSwitch';
 import ParameterPanel, { type LayoutParams } from './ParameterPanel';
 import CanvasPreview from './CanvasPreview';
@@ -31,6 +31,7 @@ export default function Playground() {
   const [mode, setMode] = useState<LayoutMode>('grid');
   const [seed, setSeed] = useState(42);
   const [params, setParams] = useState<LayoutParams>(DEFAULT_PARAMS);
+  const [bgColor, setBgColor] = useState(DEFAULT_CANVAS_BG);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [debouncedParams, setDebouncedParams] = useState<LayoutParams>(DEFAULT_PARAMS);
 
@@ -106,9 +107,28 @@ export default function Playground() {
         Playground
       </h2>
 
-      {/* Mode switch */}
+      {/* Mode switch + bg color */}
       <div className="mb-5 flex flex-wrap items-center gap-4">
         <ModeSwitch mode={mode} onModeChange={setMode} />
+        <div className="flex items-center gap-1.5">
+          {CANVAS_BG_COLORS.map((c) => (
+            <button
+              key={c.value}
+              onClick={() => setBgColor(c.value)}
+              className="h-5 w-5 cursor-pointer rounded-full transition-all"
+              style={{
+                background: c.value,
+                border: bgColor === c.value
+                  ? `2px solid ${mode === 'grid' ? 'var(--accent-grid)' : 'var(--accent-phyllo)'}`
+                  : '1.5px solid var(--border-surface)',
+                transform: bgColor === c.value ? 'scale(1.2)' : 'scale(1)',
+                transitionDuration: 'var(--duration-fast)',
+              }}
+              aria-label={`Background: ${c.label}`}
+              title={c.label}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Desktop: side-by-side | Mobile: canvas on top, params below */}
@@ -136,6 +156,7 @@ export default function Playground() {
               canvasW={canvasW}
               canvasH={canvasH}
               mode={mode}
+              bgColor={bgColor}
             />
           </div>
 
