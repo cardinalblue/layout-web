@@ -16,6 +16,14 @@ export const IMAGE_SETS: Record<string, ImageSetDef> = {
     label: 'Portrait',
     ratios: [3 / 4, 9 / 16, 2 / 3, 4 / 5],
   },
+  square: {
+    label: 'Square',
+    ratios: [1],
+  },
+  extreme: {
+    label: 'Extreme',
+    ratios: [21 / 9, 9 / 21, 3 / 1, 1 / 3, 16 / 9, 9 / 16],
+  },
 };
 
 export interface CanvasRatioDef {
@@ -29,6 +37,7 @@ export const CANVAS_RATIOS: Record<string, CanvasRatioDef> = {
   '1:1': { label: '1:1', width: 1, height: 1 },
   '3:4': { label: '3:4', width: 3, height: 4 },
   '16:9': { label: '16:9', width: 16, height: 9 },
+  '9:16': { label: '9:16', width: 9, height: 16 },
 };
 
 // Placeholder colors for canvas preview (warm, varied palette)

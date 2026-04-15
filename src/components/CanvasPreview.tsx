@@ -12,6 +12,14 @@ interface CanvasPreviewProps {
   bgColor?: string;
 }
 
+// Stable color assignment: same ID always gets the same color
+function colorForId(id: string): string {
+  // Extract numeric index from IDs like "img-3" or "upload-xxx"
+  const match = id.match(/(\d+)/);
+  const idx = match ? parseInt(match[1], 10) : 0;
+  return PLACEHOLDER_COLORS[idx % PLACEHOLDER_COLORS.length];
+}
+
 export default function CanvasPreview({
   frames,
   canvasW,
@@ -22,6 +30,10 @@ export default function CanvasPreview({
 }: CanvasPreviewProps) {
   const imageMap = new Map(images?.map((img) => [img.id, img.src]));
   const aspectRatio = canvasW / canvasH;
+
+  // Sort by ID for stable React reconciliation — ensures same DOM element order
+  // across layout changes, so CSS transitions fire correctly on all elements
+  const sortedFrames = [...frames].sort((a, b) => a.id.localeCompare(b.id));
 
   return (
     <div
@@ -36,7 +48,7 @@ export default function CanvasPreview({
       role="img"
       aria-label={`${mode} layout preview with ${frames.length} images`}
     >
-      {frames.map((frame, i) => {
+      {sortedFrames.map((frame) => {
         const src = imageMap.get(frame.id);
         const scaleX = 100 / canvasW;
         const scaleY = 100 / canvasH;
@@ -49,25 +61,24 @@ export default function CanvasPreview({
         const shadow = hasRotation
           ? 'var(--shadow-image-tilted)'
           : 'var(--shadow-image)';
-        const color = PLACEHOLDER_COLORS[i % PLACEHOLDER_COLORS.length];
+        const color = colorForId(frame.id);
 
         return (
           <div
             key={frame.id}
-            className="absolute transition-all"
             style={{
+              position: 'absolute',
               left: `${left}%`,
               top: `${top}%`,
               width: `${width}%`,
               height: `${height}%`,
-              transform: rotation ? `rotate(${rotation}deg)` : undefined,
+              transform: `rotate(${rotation}deg)`,
               transformOrigin: 'center center',
-              willChange: 'transform',
+              willChange: 'left, top, width, height, transform',
               borderRadius: 'var(--radius-sm)',
               boxShadow: shadow,
               overflow: 'hidden',
-              transitionDuration: 'var(--duration-normal)',
-              transitionTimingFunction: 'var(--ease)',
+              transition: 'left 600ms cubic-bezier(0.4, 0, 0.2, 1), top 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), transform 600ms cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
             {src ? (

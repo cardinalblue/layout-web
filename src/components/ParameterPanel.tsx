@@ -48,12 +48,13 @@ export default function ParameterPanel({
       {/* Canvas group — pills + image count */}
       {!compact && (
         <div className="flex flex-col gap-2.5">
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Canvas ratio */}
+          <div className="flex flex-wrap items-center gap-1.5">
             <span
-              className="font-heading mr-1 text-[10px] tracking-wider uppercase"
+              className="font-heading mr-0.5 text-[10px] tracking-wider uppercase"
               style={{ color: 'var(--text-tertiary)' }}
             >
-              Ratio
+              Canvas ratio
             </span>
             {Object.entries(CANVAS_RATIOS).map(([key, def]) => (
               <button
@@ -73,7 +74,16 @@ export default function ParameterPanel({
                 {def.label}
               </button>
             ))}
-            <span className="mx-1" style={{ color: 'var(--border-surface)' }}>|</span>
+          </div>
+
+          {/* Image set */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span
+              className="font-heading mr-0.5 text-[10px] tracking-wider uppercase"
+              style={{ color: 'var(--text-tertiary)' }}
+            >
+              Image set
+            </span>
             {Object.entries(IMAGE_SETS).map(([key, def]) => (
               <button
                 key={key}
