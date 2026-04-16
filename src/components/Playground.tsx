@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import type { LayoutMode, Frame } from '../engine/types';
 import { gridLayout } from '../engine/grid';
 import { phylloLayout } from '../engine/phyllo';
@@ -88,8 +88,25 @@ export default function Playground() {
     return { frames: result, score: Math.min(coverage, 1) };
   }, [mode, seed, images, canvasW, canvasH, debouncedParams]);
 
+  // Auto-retry when score < 50%
+  const retryRef = useRef(0);
+  useEffect(() => {
+    if (frames.length > 0 && score < 0.5 && retryRef.current < 5) {
+      retryRef.current += 1;
+      setSeed((s) => s + 1);
+    } else {
+      retryRef.current = 0;
+    }
+  }, [frames, score]);
+
   const handleShuffle = useCallback(() => {
     setSeed(Math.floor(Math.random() * 10000));
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setParams(DEFAULT_PARAMS);
+    setDebouncedParams(DEFAULT_PARAMS);
+    setBgColor(DEFAULT_CANVAS_BG);
   }, []);
 
   return (
@@ -123,6 +140,7 @@ export default function Playground() {
             onParamsChange={handleParamsChange}
             bgColor={bgColor}
             onBgColorChange={setBgColor}
+            onReset={handleReset}
           />
         </div>
 

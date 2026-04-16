@@ -327,7 +327,7 @@ function gridScore(
     gapSumSq += (nnDist - gapPx) * (nnDist - gapPx);
   }
   const gapRMSE = Math.sqrt(gapSumSq / n);
-  const gapScore = 1 / (1 + gapRMSE / gapPx);
+  const gapScore = 1 / (1 + gapRMSE / (Math.abs(gapPx) || 1));
 
   // Factor 2: fill
   const bbox = boundingBox(frames);

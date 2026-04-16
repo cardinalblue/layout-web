@@ -49,3 +49,22 @@
 - `npx tsc --noEmit` — 0 errors
 - `pnpm build` — production build succeeds
 - Smoke test — all sections render, mode switch works, shuffle changes layout, zero console errors, responsive at mobile/desktop
+
+## 2026-04-16
+
+### Upload Section: StatsBar + Parity with Playground
+- **Added StatsBar to UploadSection** — now displays Coverage, Gap, Score, Overlaps below the canvas, matching Playground behavior
+- **Score computation** — upload section now computes bounding-box coverage score identical to Playground
+
+### Negative Gap Support
+- **Gap slider min changed from 1% to -2%** — allows overlapping images when negative gap is set
+- **Grid scoring fix** — `gapScore` denominator uses `Math.abs(gapPx) || 1` to prevent division by zero/negative
+
+### Reset Button
+- **Added Reset button to ParameterPanel** — appears at bottom-right of the parameter card
+- **Wired in both Playground and UploadSection** — resets params, canvas ratio, and background color to defaults
+
+### Auto-Retry on Low Score
+- **Score < 50% triggers seed increment** — `useEffect` watches score and retries up to 5 times with incremented seed
+- **Applied to both Playground and UploadSection** — ensures layouts meet minimum quality threshold
+  Rationale: prevents users from seeing poor-quality layouts; 5-retry cap avoids infinite loops

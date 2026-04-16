@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import type { LayoutMode, Frame } from '../engine/types';
 import { gridLayout } from '../engine/grid';
 import { phylloLayout } from '../engine/phyllo';
@@ -8,6 +8,7 @@ import { CANVAS_RATIOS, DEFAULT_CANVAS_BG } from '../data/imageSets';
 import ModeSwitch from './ModeSwitch';
 import ParameterPanel, { type LayoutParams } from './ParameterPanel';
 import CanvasPreview from './CanvasPreview';
+import StatsBar from './StatsBar';
 import SeedControls from './SeedControls';
 import ShuffleButton from './ShuffleButton';
 import DropZone from './DropZone';
@@ -138,26 +139,62 @@ export default function UploadSection() {
     [photos],
   );
 
-  const frames: Frame[] = useMemo(() => {
-    if (images.length === 0) return [];
+  const { frames, score } = useMemo(() => {
+    if (images.length === 0) return { frames: [] as Frame[], score: 0 };
     const shortEdge = Math.min(canvasW, canvasH);
     const gapPx = shortEdge * debouncedParams.gapPercent / 100;
     const padPx = shortEdge * debouncedParams.paddingPercent / 100;
+
+    let result: Frame[];
     if (mode === 'grid') {
-      return gridLayout(images, canvasW, canvasH, gapPx, padPx, seed, {
+      result = gridLayout(images, canvasW, canvasH, gapPx, padPx, seed, {
         areaLimit: debouncedParams.areaLimit,
       });
+    } else {
+      result = phylloLayout(images, canvasW, canvasH, gapPx, padPx, seed, {
+        sizeVar: debouncedParams.sizeVar,
+        rotation: debouncedParams.rotation,
+        density: debouncedParams.density,
+        maxTrials: debouncedParams.maxTrials,
+      });
     }
-    return phylloLayout(images, canvasW, canvasH, gapPx, padPx, seed, {
-      sizeVar: debouncedParams.sizeVar,
-      rotation: debouncedParams.rotation,
-      density: debouncedParams.density,
-      maxTrials: debouncedParams.maxTrials,
-    });
+
+    const bbox = result.length > 0
+      ? (() => {
+          let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+          for (const f of result) {
+            minX = Math.min(minX, f.x);
+            minY = Math.min(minY, f.y);
+            maxX = Math.max(maxX, f.x + f.width);
+            maxY = Math.max(maxY, f.y + f.height);
+          }
+          return { w: maxX - minX, h: maxY - minY };
+        })()
+      : { w: 0, h: 0 };
+    const coverage = (bbox.w * bbox.h) / (canvasW * canvasH);
+    return { frames: result, score: Math.min(coverage, 1) };
   }, [mode, seed, images, canvasW, canvasH, debouncedParams]);
+
+  // Auto-retry when score < 50%
+  const retryRef = useRef(0);
+  useEffect(() => {
+    if (frames.length > 0 && score < 0.5 && retryRef.current < 5) {
+      retryRef.current += 1;
+      setSeed((s) => s + 1);
+    } else {
+      retryRef.current = 0;
+    }
+  }, [frames, score]);
 
   const handleShuffle = useCallback(() => {
     setSeed(Math.floor(Math.random() * 10000));
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setParams(DEFAULT_PARAMS);
+    setDebouncedParams(DEFAULT_PARAMS);
+    setCanvasRatio('4:3');
+    setBgColor(DEFAULT_CANVAS_BG);
   }, []);
 
   const photoCountHint = photos.length < 3
@@ -214,6 +251,7 @@ export default function UploadSection() {
                 onCanvasRatioChange={setCanvasRatio}
                 bgColor={bgColor}
                 onBgColorChange={setBgColor}
+                onReset={handleReset}
               />
             </div>
 
@@ -231,6 +269,14 @@ export default function UploadSection() {
                   bgColor={bgColor}
                 />
               </div>
+
+              <StatsBar
+                frames={frames}
+                canvasW={canvasW}
+                canvasH={canvasH}
+                score={score}
+              />
+
               <div className="flex flex-wrap items-center justify-center gap-4">
                 <SeedControls seed={seed} mode={mode} onSeedChange={setSeed} />
                 <ShuffleButton mode={mode} onShuffle={handleShuffle} />

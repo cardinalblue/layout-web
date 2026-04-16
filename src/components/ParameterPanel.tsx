@@ -28,6 +28,8 @@ interface ParameterPanelProps {
   // Background color
   bgColor: string;
   onBgColorChange: (color: string) => void;
+  // Reset to defaults
+  onReset?: () => void;
 }
 
 export default function ParameterPanel({
@@ -39,6 +41,7 @@ export default function ParameterPanel({
   onCanvasRatioChange,
   bgColor,
   onBgColorChange,
+  onReset,
 }: ParameterPanelProps) {
   const update = (patch: Partial<LayoutParams>) => {
     onParamsChange({ ...params, ...patch });
@@ -157,7 +160,7 @@ export default function ParameterPanel({
       <SliderRow
         label="Gap"
         value={params.gapPercent}
-        min={1}
+        min={-2}
         max={8}
         step={0.5}
         onChange={(v) => update({ gapPercent: v })}
@@ -229,6 +232,29 @@ export default function ParameterPanel({
             accentClass="slider-phyllo"
           />
         </>
+      )}
+
+      {onReset && (
+        <button
+          onClick={onReset}
+          className="font-heading mt-1 cursor-pointer self-end rounded-md px-3 py-1.5 text-[11px] tracking-wide transition-all"
+          style={{
+            color: 'var(--text-tertiary)',
+            border: '1px solid var(--border-surface)',
+            background: 'transparent',
+            transitionDuration: 'var(--duration-fast)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = 'var(--text-primary)';
+            e.currentTarget.style.borderColor = 'var(--text-tertiary)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'var(--text-tertiary)';
+            e.currentTarget.style.borderColor = 'var(--border-surface)';
+          }}
+        >
+          Reset
+        </button>
       )}
     </div>
   );
