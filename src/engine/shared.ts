@@ -174,3 +174,26 @@ export function nearestNeighborDist(frames: Frame[], index: number): number {
   }
   return minDist;
 }
+
+// ============================================================
+// Overlap post-processing — push frames toward center
+// ============================================================
+
+export function applyOverlap(
+  frames: Frame[],
+  overlapPx: number,
+  canvasW: number,
+  canvasH: number,
+): Frame[] {
+  if (overlapPx <= 0 || frames.length < 2) return frames;
+  const cx = canvasW / 2;
+  const cy = canvasH / 2;
+  // Scale position offsets from canvas center inward
+  const shrink = overlapPx / Math.min(canvasW, canvasH);
+  const scale = Math.max(0.4, 1 - shrink * 4);
+  return frames.map((f) => ({
+    ...f,
+    x: cx + ((f.x + f.width / 2) - cx) * scale - f.width / 2,
+    y: cy + ((f.y + f.height / 2) - cy) * scale - f.height / 2,
+  }));
+}

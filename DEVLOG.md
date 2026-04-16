@@ -68,3 +68,14 @@
 - **Score < 50% triggers seed increment** — `useEffect` watches score and retries up to 5 times with incremented seed
 - **Applied to both Playground and UploadSection** — ensures layouts meet minimum quality threshold
   Rationale: prevents users from seeing poor-quality layouts; 5-retry cap avoids infinite loops
+
+### Overlap Post-Processing
+- **New "Overlap" parameter** (0–10%) — post-processing that scales frame positions toward canvas center after layout engine runs
+- **Avoids engine conflict** — engines internally compute clean non-overlapping layouts; overlap is applied purely as a post-step via `applyOverlap()` in `shared.ts`
+- **Gap slider reverted to min=0** — negative gap in the engine was blocked by collision resolution + overlap fix + scoring penalties
+  Rationale: engine's overlap prevention (postScaleOverlapFix hardcodes +1px separation, phylloScore returns negative for any overlap, grid GA penalizes non-uniform gaps) made negative gap ineffective; post-processing is the clean solution
+
+### Border & Shadow Controls
+- **Border Width** (0–6px, default 0) — white CSS border on each frame via `box-sizing: border-box`, giving a picture-frame effect
+- **Shadow Opacity** (0–100%, default 25%) — replaces hardcoded CSS custom property shadows with inline `rgba()` computation; 0% removes shadows entirely
+- **Both params available in Playground and Upload section** — passed from ParameterPanel → CanvasPreview as props

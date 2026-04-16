@@ -10,6 +10,8 @@ interface CanvasPreviewProps {
   mode: LayoutMode;
   images?: { id: string; src: string }[];
   bgColor?: string;
+  borderWidth?: number;
+  shadowOpacity?: number;
 }
 
 function colorForId(id: string): string {
@@ -40,6 +42,8 @@ export default function CanvasPreview({
   mode,
   images,
   bgColor,
+  borderWidth = 0,
+  shadowOpacity,
 }: CanvasPreviewProps) {
   const imageMap = new Map(images?.map((img) => [img.id, img.src]));
   const { w: displayW } = computeDisplaySize(canvasW, canvasH);
@@ -73,10 +77,16 @@ export default function CanvasPreview({
           const height = frame.height * scaleY;
           const rotation = frame.rotation ?? 0;
           const hasRotation = Math.abs(rotation) > 0.1;
-          const shadow = hasRotation
-            ? 'var(--shadow-image-tilted)'
-            : 'var(--shadow-image)';
+          const opacity = shadowOpacity ?? (hasRotation ? 0.35 : 0.25);
+          const shadow = opacity > 0
+            ? hasRotation
+              ? `0 4px 12px rgba(0, 0, 0, ${opacity})`
+              : `0 2px 8px rgba(0, 0, 0, ${opacity})`
+            : 'none';
           const color = colorForId(frame.id);
+          const border = borderWidth > 0
+            ? `${borderWidth}px solid white`
+            : undefined;
 
           return (
             <div
@@ -92,6 +102,8 @@ export default function CanvasPreview({
                 willChange: 'left, top, width, height, transform',
                 borderRadius: 'var(--radius-sm)',
                 boxShadow: shadow,
+                border,
+                boxSizing: 'border-box',
                 overflow: 'hidden',
                 transition: 'left 600ms cubic-bezier(0.4, 0, 0.2, 1), top 600ms cubic-bezier(0.4, 0, 0.2, 1), width 600ms cubic-bezier(0.4, 0, 0.2, 1), height 600ms cubic-bezier(0.4, 0, 0.2, 1), transform 600ms cubic-bezier(0.4, 0, 0.2, 1)',
               }}

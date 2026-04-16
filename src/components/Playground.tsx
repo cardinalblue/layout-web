@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import type { LayoutMode, Frame } from '../engine/types';
 import { gridLayout } from '../engine/grid';
 import { phylloLayout } from '../engine/phyllo';
+import { applyOverlap } from '../engine/shared';
 import { generateImages, CANVAS_RATIOS, DEFAULT_CANVAS_BG } from '../data/imageSets';
 import ModeSwitch from './ModeSwitch';
 import ParameterPanel, { type LayoutParams } from './ParameterPanel';
@@ -18,6 +19,9 @@ const DEFAULT_PARAMS: LayoutParams = {
   canvasRatio: '4:3',
   gapPercent: 4,
   paddingPercent: 6.5,
+  overlap: 0,
+  borderWidth: 0,
+  shadowOpacity: 0.25,
   areaLimit: 3,
   sizeVar: 0.5,
   rotation: 1,
@@ -84,6 +88,11 @@ export default function Playground() {
           return { w: maxX - minX, h: maxY - minY };
         })()
       : { w: 0, h: 0 };
+    // Apply overlap post-processing
+    const shortEdge2 = Math.min(canvasW, canvasH);
+    const overlapPx = shortEdge2 * debouncedParams.overlap / 100;
+    result = applyOverlap(result, overlapPx, canvasW, canvasH);
+
     const coverage = (bbox.w * bbox.h) / (canvasW * canvasH);
     return { frames: result, score: Math.min(coverage, 1) };
   }, [mode, seed, images, canvasW, canvasH, debouncedParams]);
@@ -155,6 +164,8 @@ export default function Playground() {
               canvasH={canvasH}
               mode={mode}
               bgColor={bgColor}
+              borderWidth={debouncedParams.borderWidth}
+              shadowOpacity={debouncedParams.shadowOpacity}
             />
           </div>
 

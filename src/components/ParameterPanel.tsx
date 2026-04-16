@@ -10,6 +10,9 @@ export interface LayoutParams {
   canvasRatio: string;
   gapPercent: number;
   paddingPercent: number;
+  overlap: number;
+  borderWidth: number;
+  shadowOpacity: number;
   areaLimit: number;
   sizeVar: number;
   rotation: number;
@@ -160,7 +163,7 @@ export default function ParameterPanel({
       <SliderRow
         label="Gap"
         value={params.gapPercent}
-        min={-2}
+        min={0}
         max={8}
         step={0.5}
         onChange={(v) => update({ gapPercent: v })}
@@ -175,6 +178,36 @@ export default function ParameterPanel({
         step={0.5}
         onChange={(v) => update({ paddingPercent: v })}
         format={(v) => `${v}%`}
+        accentClass={accentClass}
+      />
+      <SliderRow
+        label="Overlap"
+        value={params.overlap}
+        min={0}
+        max={10}
+        step={0.5}
+        onChange={(v) => update({ overlap: v })}
+        format={(v) => `${v}%`}
+        accentClass={accentClass}
+      />
+      <SliderRow
+        label="Border"
+        value={params.borderWidth}
+        min={0}
+        max={6}
+        step={0.5}
+        onChange={(v) => update({ borderWidth: v })}
+        format={(v) => `${v}px`}
+        accentClass={accentClass}
+      />
+      <SliderRow
+        label="Shadow"
+        value={params.shadowOpacity}
+        min={0}
+        max={1}
+        step={0.05}
+        onChange={(v) => update({ shadowOpacity: v })}
+        format={(v) => `${Math.round(v * 100)}%`}
         accentClass={accentClass}
       />
 
