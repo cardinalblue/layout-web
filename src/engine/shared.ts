@@ -176,24 +176,70 @@ export function nearestNeighborDist(frames: Frame[], index: number): number {
 }
 
 // ============================================================
-// Overlap post-processing — push frames toward center
+// Scrap Scale — inflate each frame in-place
 // ============================================================
 
-export function applyOverlap(
+export function applyScrapScale(frames: Frame[], scalePx: number): Frame[] {
+  if (scalePx <= 0 || frames.length < 2) return frames;
+  const shortEdge = Math.min(
+    ...frames.map((f) => Math.min(f.width, f.height)),
+  );
+  const grow = 1 + (scalePx / (shortEdge || 1)) * 2;
+  return frames.map((f) => {
+    const newW = f.width * grow;
+    const newH = f.height * grow;
+    return {
+      ...f,
+      x: f.x - (newW - f.width) / 2,
+      y: f.y - (newH - f.height) / 2,
+      width: newW,
+      height: newH,
+    };
+  });
+}
+
+// ============================================================
+// Tightness — pull toward center + re-scale to fill
+// ============================================================
+
+export function applyTightness(
   frames: Frame[],
-  overlapPx: number,
+  tightPx: number,
   canvasW: number,
   canvasH: number,
 ): Frame[] {
-  if (overlapPx <= 0 || frames.length < 2) return frames;
+  if (tightPx <= 0 || frames.length < 2) return frames;
   const cx = canvasW / 2;
   const cy = canvasH / 2;
-  // Scale position offsets from canvas center inward
-  const shrink = overlapPx / Math.min(canvasW, canvasH);
-  const scale = Math.max(0.4, 1 - shrink * 4);
-  return frames.map((f) => ({
+  const shrink = tightPx / Math.min(canvasW, canvasH);
+  const pullScale = Math.max(0.4, 1 - shrink * 4);
+
+  // Step 1: pull positions toward center
+  const pulled = frames.map((f) => ({
     ...f,
-    x: cx + ((f.x + f.width / 2) - cx) * scale - f.width / 2,
-    y: cy + ((f.y + f.height / 2) - cy) * scale - f.height / 2,
+    x: cx + ((f.x + f.width / 2) - cx) * pullScale - f.width / 2,
+    y: cy + ((f.y + f.height / 2) - cy) * pullScale - f.height / 2,
+  }));
+
+  // Step 2: re-scale group back to original bounding area
+  const origBBox = boundingBox(frames);
+  const newBBox = boundingBox(pulled);
+  if (newBBox.width <= 0 || newBBox.height <= 0) return pulled;
+
+  const reScale = Math.min(
+    origBBox.width / newBBox.width,
+    origBBox.height / newBBox.height,
+  );
+  const ncx = newBBox.x + newBBox.width / 2;
+  const ncy = newBBox.y + newBBox.height / 2;
+  const ocx = origBBox.x + origBBox.width / 2;
+  const ocy = origBBox.y + origBBox.height / 2;
+
+  return pulled.map((f) => ({
+    ...f,
+    x: ocx + ((f.x + f.width / 2) - ncx) * reScale - (f.width * reScale) / 2,
+    y: ocy + ((f.y + f.height / 2) - ncy) * reScale - (f.height * reScale) / 2,
+    width: f.width * reScale,
+    height: f.height * reScale,
   }));
 }

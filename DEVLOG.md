@@ -75,6 +75,13 @@
 - **Gap slider reverted to min=0** — negative gap in the engine was blocked by collision resolution + overlap fix + scoring penalties
   Rationale: engine's overlap prevention (postScaleOverlapFix hardcodes +1px separation, phylloScore returns negative for any overlap, grid GA penalizes non-uniform gaps) made negative gap ineffective; post-processing is the clean solution
 
+### Scrap Scale & Tightness (replaces Overlap)
+- **Split single "Overlap" param into two independent controls** — they are conceptually different dimensions
+- **Scrap Scale** (0–10%) — inflates each frame in-place (center preserved), neighbors naturally overlap; implemented as `applyScrapScale()` in `shared.ts`
+- **Tightness** (0–10%) — pulls all frame positions toward canvas center then re-scales the group back to fill original bounding box; overlaps survive the re-scale; implemented as `applyTightness()` in `shared.ts`
+- **Both are stackable** — scrap scale + tightness can be combined for compounding overlap effects
+  Rationale: center-pull alone left empty margins (coverage dropped from 72% → 44%); inflate alone doesn't change layout structure. They address different needs: "bigger photos" vs "tighter grouping"
+
 ### Border & Shadow Controls
 - **Border Width** (0–6px, default 0) — white CSS border on each frame via `box-sizing: border-box`, giving a picture-frame effect
 - **Shadow Opacity** (0–100%, default 25%) — replaces hardcoded CSS custom property shadows with inline `rgba()` computation; 0% removes shadows entirely

@@ -10,7 +10,8 @@ export interface LayoutParams {
   canvasRatio: string;
   gapPercent: number;
   paddingPercent: number;
-  overlap: number;
+  scrapScale: number;
+  tightness: number;
   borderWidth: number;
   shadowOpacity: number;
   areaLimit: number;
@@ -181,12 +182,22 @@ export default function ParameterPanel({
         accentClass={accentClass}
       />
       <SliderRow
-        label="Overlap"
-        value={params.overlap}
+        label="Scrap Scale"
+        value={params.scrapScale}
         min={0}
         max={10}
         step={0.5}
-        onChange={(v) => update({ overlap: v })}
+        onChange={(v) => update({ scrapScale: v })}
+        format={(v) => `${v}%`}
+        accentClass={accentClass}
+      />
+      <SliderRow
+        label="Tightness"
+        value={params.tightness}
+        min={0}
+        max={10}
+        step={0.5}
+        onChange={(v) => update({ tightness: v })}
         format={(v) => `${v}%`}
         accentClass={accentClass}
       />

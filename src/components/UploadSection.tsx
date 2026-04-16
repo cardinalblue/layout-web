@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import type { LayoutMode, Frame } from '../engine/types';
 import { gridLayout } from '../engine/grid';
 import { phylloLayout } from '../engine/phyllo';
-import { applyOverlap } from '../engine/shared';
+import { applyScrapScale, applyTightness } from '../engine/shared';
 import { CANVAS_RATIOS, DEFAULT_CANVAS_BG } from '../data/imageSets';
 import ModeSwitch from './ModeSwitch';
 import ParameterPanel, { type LayoutParams } from './ParameterPanel';
@@ -31,7 +31,8 @@ const DEFAULT_PARAMS: LayoutParams = {
   canvasRatio: '4:3',
   gapPercent: 4,
   paddingPercent: 6.5,
-  overlap: 0,
+  scrapScale: 0,
+  tightness: 0,
   borderWidth: 0,
   shadowOpacity: 0.25,
   areaLimit: 3,
@@ -175,10 +176,12 @@ export default function UploadSection() {
           return { w: maxX - minX, h: maxY - minY };
         })()
       : { w: 0, h: 0 };
-    // Apply overlap post-processing
+    // Post-processing: scrap scale + tightness
     const shortEdge2 = Math.min(canvasW, canvasH);
-    const overlapPx = shortEdge2 * debouncedParams.overlap / 100;
-    result = applyOverlap(result, overlapPx, canvasW, canvasH);
+    const scalePx = shortEdge2 * debouncedParams.scrapScale / 100;
+    const tightPx = shortEdge2 * debouncedParams.tightness / 100;
+    result = applyScrapScale(result, scalePx);
+    result = applyTightness(result, tightPx, canvasW, canvasH);
 
     const coverage = (bbox.w * bbox.h) / (canvasW * canvasH);
     return { frames: result, score: Math.min(coverage, 1) };
