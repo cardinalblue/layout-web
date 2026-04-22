@@ -4,13 +4,13 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
 const VERSIONS = [
-  { key: 'v2', href: '/v2', label: 'V1', short: '1' },
-  { key: 'v3', href: '/v3', label: 'V2', short: '2' },
+  { key: 'v1', href: '/v1', label: 'V1', short: '1' },
+  { key: 'v2', href: '/v2', label: 'V2', short: '2' },
 ];
 
 export default function VersionSwitcher() {
   const pathname = usePathname() ?? '';
-  const active = VERSIONS.find((v) => pathname.startsWith(v.href))?.key ?? 'v3';
+  const active = VERSIONS.find((v) => pathname.startsWith(v.href))?.key ?? 'v2';
 
   return (
     <div

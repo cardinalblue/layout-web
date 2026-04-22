@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import HeroSection from '../../components/HeroSection';
-import AlgorithmIntro from '../../components/AlgorithmIntro';
-import Playground from '../../components/Playground';
-import UploadSection from '../../components/UploadSection';
+import HeroSectionV9 from '../../components/v9/HeroSectionV9';
+import AlgorithmIntroV9 from '../../components/v9/AlgorithmIntroV9';
+import TextLogicExplainer from '../../components/v9/TextLogicExplainer';
+import PipelineFlowchart from '../../components/v9/PipelineFlowchart';
+import PlaygroundV9 from '../../components/v9/PlaygroundV9';
+import UploadSectionV9 from '../../components/v9/UploadSectionV9';
 import Footer from '../../components/Footer';
 
 export default function V2Page() {
@@ -31,18 +33,26 @@ export default function V2Page() {
 
   return (
     <main ref={sectionsRef}>
-      <HeroSection />
+      <HeroSectionV9 />
 
       <div className="fade-in-section" style={{ paddingTop: 'var(--sp-20)', paddingBottom: 'var(--sp-20)' }}>
-        <AlgorithmIntro />
+        <AlgorithmIntroV9 />
       </div>
 
       <div className="fade-in-section" style={{ paddingTop: 'var(--sp-20)', paddingBottom: 'var(--sp-20)' }}>
-        <Playground />
+        <TextLogicExplainer />
       </div>
 
       <div className="fade-in-section" style={{ paddingTop: 'var(--sp-20)', paddingBottom: 'var(--sp-20)' }}>
-        <UploadSection />
+        <PipelineFlowchart />
+      </div>
+
+      <div className="fade-in-section" style={{ paddingTop: 'var(--sp-20)', paddingBottom: 'var(--sp-20)' }}>
+        <PlaygroundV9 />
+      </div>
+
+      <div className="fade-in-section" style={{ paddingTop: 'var(--sp-20)', paddingBottom: 'var(--sp-20)' }}>
+        <UploadSectionV9 />
       </div>
 
       <div className="fade-in-section">
