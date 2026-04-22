@@ -11,6 +11,7 @@ interface CanvasPreviewProps {
   images?: { id: string; src: string }[];
   bgColor?: string;
   borderWidth?: number;
+  borderOpacity?: number;
   shadowOpacity?: number;
 }
 
@@ -43,6 +44,7 @@ export default function CanvasPreview({
   images,
   bgColor,
   borderWidth = 0,
+  borderOpacity = 0.3,
   shadowOpacity,
 }: CanvasPreviewProps) {
   const imageMap = new Map(images?.map((img) => [img.id, img.src]));
@@ -85,7 +87,7 @@ export default function CanvasPreview({
             : 'none';
           const color = colorForId(frame.id);
           const border = borderWidth > 0
-            ? `${borderWidth}px solid white`
+            ? `${borderWidth}px solid rgba(255, 255, 255, ${borderOpacity})`
             : undefined;
 
           return (

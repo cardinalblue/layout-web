@@ -34,6 +34,7 @@ const DEFAULT_PARAMS: LayoutParams = {
   scrapScale: 0,
   tightness: 0,
   borderWidth: 0,
+  borderOpacity: 0.3,
   shadowOpacity: 0.25,
   areaLimit: 3,
   sizeVar: 0.5,
@@ -280,6 +281,7 @@ export default function UploadSection() {
                   images={imageSources}
                   bgColor={bgColor}
                   borderWidth={debouncedParams.borderWidth}
+                  borderOpacity={debouncedParams.borderOpacity}
                   shadowOpacity={debouncedParams.shadowOpacity}
                 />
               </div>

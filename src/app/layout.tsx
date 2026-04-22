@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Newsreader, Outfit, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
+import VersionSwitcher from '../components/VersionSwitcher';
 
 const newsreader = Newsreader({
   subsets: ['latin'],
@@ -36,7 +37,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en"
       className={`${newsreader.variable} ${outfit.variable} ${jetbrainsMono.variable}`}
     >
-      <body>{children}</body>
+      <body suppressHydrationWarning>
+        {children}
+        <VersionSwitcher />
+      </body>
     </html>
   );
 }

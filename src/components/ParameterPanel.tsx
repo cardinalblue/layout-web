@@ -13,6 +13,7 @@ export interface LayoutParams {
   scrapScale: number;
   tightness: number;
   borderWidth: number;
+  borderOpacity: number;
   shadowOpacity: number;
   areaLimit: number;
   sizeVar: number;
@@ -209,6 +210,16 @@ export default function ParameterPanel({
         step={0.5}
         onChange={(v) => update({ borderWidth: v })}
         format={(v) => `${v}px`}
+        accentClass={accentClass}
+      />
+      <SliderRow
+        label="Border Opacity"
+        value={params.borderOpacity}
+        min={0}
+        max={1}
+        step={0.05}
+        onChange={(v) => update({ borderOpacity: v })}
+        format={(v) => `${Math.round(v * 100)}%`}
         accentClass={accentClass}
       />
       <SliderRow
