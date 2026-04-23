@@ -6,11 +6,14 @@ import Link from 'next/link';
 const VERSIONS = [
   { key: 'v1', href: '/v1', label: 'V1', short: '1' },
   { key: 'v2', href: '/v2', label: 'V2', short: '2' },
+  { key: 'v2-5', href: '/v2-5', label: 'V2.5', short: '2.5' },
 ];
 
 export default function VersionSwitcher() {
   const pathname = usePathname() ?? '';
-  const active = VERSIONS.find((v) => pathname.startsWith(v.href))?.key ?? 'v2';
+  // Exact-match + trailing-slash so /v2-5 doesn't false-match /v2 prefix.
+  const active =
+    VERSIONS.find((v) => pathname === v.href || pathname.startsWith(v.href + '/'))?.key ?? 'v2-5';
 
   return (
     <div

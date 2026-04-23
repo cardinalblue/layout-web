@@ -1,5 +1,36 @@
 # Development Log
 
+## 2026-04-23
+
+### V2.5 route — spec 0423-1 alignment
+
+- **New route `/v2-5`**, default landing page (root redirect updated from `/v2` → `/v2-5`). V2 retained for A/B comparison.
+- **Parallel engine at `src/engine/v9_5/`** with 3 algorithm corrections:
+  1. **Grid compound mutation** (`grid.ts` → `mutateGenome`) — every offspring now gets one tree op AND, when `ratioSearch` is on, an independent 50% per-text-item ratio-resample. Previously these were mutually exclusive, halving effective search of both tree and ratio spaces.
+  2. **Phyllo early-exit threshold 0.75 → 0.85** (`phyllo.ts` → `bestPhyllo`) — `phylloTrials` budget is now actually used to hunt for excellence rather than quitting at mediocre scores above the `minScore=70` gate.
+  3. **`applyScrapScale` constant-px inflation** (`shared.ts`) — replaces the multiplicative-with-smallest-frame form that made large frames blow up ~10× more than small ones. Each frame now grows by `scaleUnits` on every side uniformly.
+- **Component duplication approach** (`src/components/v2-5/*`): copies of the 6 engine-consuming components (`HeroSectionV2_5`, `AnimatedDemoV2_5`, `AlgorithmIntroV2_5`, `TextLogicExplainerV2_5`, `PlaygroundV2_5`, `UploadSectionV2_5`) with imports redirected to `engine/v9_5/`. All non-engine subcomponents (`CanvasViewV9`, `ParameterPanelV9`, `DualCanvasView`, `PipelineFlowchart`, etc.) stay shared between V2 and V2.5.
+  Rationale: simpler than an engine-as-prop refactor; V2 is unchanged and zero risk; when V2 is retired, deleting `engine/v9/` + `components/v9/` + `app/v2/` is a mechanical one-PR cleanup.
+- **VersionSwitcher** — added V2.5 pill; fixed `startsWith` false-match bug where `/v2-5` would light up both V2 and V2.5 pills. Now uses exact match + trailing-slash comparison.
+- **Tests added** at `src/__tests__/engine-v9_5.test.ts`:
+  - `applyScrapScale` constant-px inflation + center preservation + v9 multiplicative reference baseline
+  - v9 ↔ v9.5 parity on image-only inputs (Grid exact match, Phyllo score ≥ monotonic)
+  - Grid compound mutation: v9.5 average score across 5 seeds on text-heavy input ≥ v9
+- **Spec references** — spec authority is now `spec/auto-layout-text-spec-0423-1.md` §Grid → Mutation Operators, §Phyllo → Multi-Trial Selector, §Post-Processing → applyScrapScale. OpenSpec proposal at `openspec/changes/v2-5-auto-layout-0423.md`.
+
+Verification: `pnpm test` (50/50), `npx tsc --noEmit` (clean), `pnpm build` (all 4 routes prerendered: `/`, `/v1`, `/v2`, `/v2-5`).
+
+### Hydration fix: AnimatedDemoV2_5 mount-gate
+
+- **Symptom**: console hydration error on first load of `/v2-5`; text frames matched SSR↔CSR but the 3 image frames in the hero's Grid demo came out in reversed row order. Same item widths/heights, different `left` — classic "GA converged to a different tree on client".
+- **Root cause**: the hero runs a full 50-population × 40-generation GA inside `useMemo`. Over thousands of score comparisons (log, sqrt, products), Node's SSR runtime and the browser's V8 produce ULP-level floating-point differences. When two genomes score within ULP distance, sort-by-score order flips → different top-30% survivors → downstream mutations diverge completely. Engine code stays deterministic *within* a runtime; the issue is cross-runtime float agreement, which ECMAScript doesn't guarantee for `Math.log` / `Math.sqrt` / FMA-style products.
+- **Fix**: 4-line mount-gate in `src/components/v2-5/AnimatedDemoV2_5.tsx`. SSR renders an `aspect-ratio: 4/3` placeholder; `useEffect(() => setMounted(true), [])` triggers the real GA render after hydration. Engine code untouched.
+- **Not applied to V9**: `AnimatedDemoV9` on `/v2` has the same latent risk but hasn't reliably surfaced it. Will patch the same way if/when it does.
+
+### OpenSpec archive
+
+- `openspec/changes/v2-5-auto-layout-0423.md` — spec fully implemented; completion note + follow-ups appended at the top. V2 retirement listed as deliberate follow-up (not in this change).
+
 ## 2026-04-15
 
 ### Spec Proposed: Layout Demo Web
